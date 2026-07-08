@@ -1,0 +1,201 @@
+insert_card:
+  target:
+    device:
+      integration: spice
+  fields:
+    card_number:
+      required: true
+      example: "012E111111111111"
+      selector:
+        text:
+    pin:
+      required: true
+      example: "1234"
+      selector:
+        text:
+    side:
+      required: true
+      default: "0"
+      selector:
+        select:
+          options:
+            - { value: "0", label: "Player 1" }
+            - { value: "1", label: "Player 2" }
+    pin_delay:
+      required: false
+      default: 7
+      selector:
+        number:
+          min: 0
+          max: 30
+          unit_of_measurement: s
+          mode: box
+
+insert_double:
+  target:
+    device:
+      integration: spice
+  fields:
+    card_number:
+      required: true
+      example: "012E111111111111"
+      selector:
+        text:
+    pin:
+      required: true
+      example: "1234"
+      selector:
+        text:
+    card_number2:
+      required: true
+      example: "012E222222222222"
+      selector:
+        text:
+    pin2:
+      required: true
+      example: "5678"
+      selector:
+        text:
+    side:
+      required: true
+      default: "0"
+      selector:
+        select:
+          options:
+            - { value: "0", label: "Player 1" }
+            - { value: "1", label: "Player 2" }
+    pin_delay:
+      required: false
+      default: 7
+      selector:
+        number:
+          min: 0
+          max: 30
+          unit_of_measurement: s
+          mode: box
+    stagger:
+      required: false
+      default: 1
+      selector:
+        number:
+          min: 0
+          max: 10
+          unit_of_measurement: s
+          mode: box
+
+keypad_write:
+  target:
+    device:
+      integration: spice
+  fields:
+    side:
+      required: true
+      default: "0"
+      selector:
+        select:
+          options:
+            - { value: "0", label: "Player 1" }
+            - { value: "1", label: "Player 2" }
+    values:
+      required: true
+      example: "1234"
+      selector:
+        text:
+
+screenshot:
+  target:
+    device:
+      integration: spice
+  fields:
+    side:
+      required: true
+      default: "0"
+      selector:
+        select:
+          options:
+            - { value: "0", label: "Player 1" }
+            - { value: "1", label: "Player 2" }
+
+button_press:
+  target:
+    device:
+      integration: spice
+  fields:
+    buttons:
+      required: true
+      example: '[["Test", 1.0]]'
+      selector:
+        object:
+
+lights_write:
+  target:
+    device:
+      integration: spice
+  fields:
+    lights:
+      required: true
+      example: '[["Start", 1.0]]'
+      selector:
+        object:
+
+coin_insert:
+  target:
+    device:
+      integration: spice
+  fields:
+    amount:
+      required: false
+      default: 1
+      selector:
+        number:
+          min: 1
+          max: 99
+          mode: box
+
+touch:
+  target:
+    device:
+      integration: spice
+  fields:
+    points:
+      required: true
+      example: "[[100000, 640, 360]]"
+      selector:
+        object:
+
+touch_reset:
+  target:
+    device:
+      integration: spice
+  fields:
+    ids:
+      required: true
+      example: "[100000]"
+      selector:
+        object:
+
+control:
+  target:
+    device:
+      integration: spice
+  fields:
+    action:
+      required: true
+      selector:
+        select:
+          options:
+            - restart
+            - exit
+            - shutdown
+            - reboot
+
+iidx_ticker_set:
+  target:
+    device:
+      integration: spice
+  fields:
+    text:
+      required: true
+      example: "HELLO"
+      selector:
+        text:

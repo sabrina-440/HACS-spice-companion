@@ -1,0 +1,186 @@
+{
+  "config": {
+    "step": {
+      "user": {
+        "title": "Add a spice2x machine",
+        "description": "Enter the connection details for the spice2x host. These match the settings you use in the spice companion app.",
+        "data": {
+          "host": "Host",
+          "port": "Port",
+          "password": "Password",
+          "name": "Name"
+        },
+        "data_description": {
+          "host": "IP address or hostname of the machine running spice2x.",
+          "port": "API port spice2x was launched with (default 57300).",
+          "password": "API password (leave blank if none is set).",
+          "name": "Friendly name shown for this machine in Home Assistant."
+        }
+      },
+      "reconfigure": {
+        "title": "Reconfigure spice2x machine",
+        "data": {
+          "host": "Host",
+          "port": "Port",
+          "password": "Password"
+        }
+      }
+    },
+    "error": {
+      "cannot_connect": "Failed to connect. Check the host, port, and that spice2x is running with its API enabled.",
+      "invalid_auth": "The host rejected the connection. Check the password.",
+      "unknown": "An unexpected error occurred."
+    },
+    "abort": {
+      "already_configured": "This machine is already configured.",
+      "reconfigure_successful": "Machine reconfigured successfully.",
+      "unique_id_mismatch": "The host and port do not match the machine being reconfigured."
+    }
+  },
+  "options": {
+    "step": {
+      "init": {
+        "title": "spice2x options",
+        "menu_options": {
+          "add_card": "Add a card",
+          "remove_card": "Remove a card",
+          "settings": "Settings"
+        }
+      },
+      "add_card": {
+        "title": "Add a card",
+        "data": {
+          "name": "Name",
+          "card_number": "Card number",
+          "pin": "PIN"
+        },
+        "data_description": {
+          "name": "A label for this card, e.g. a player's name.",
+          "card_number": "The 16-digit IC card number.",
+          "pin": "The PIN entered after the card is inserted."
+        }
+      },
+      "remove_card": {
+        "title": "Remove cards",
+        "data": {
+          "cards": "Cards to remove"
+        }
+      },
+      "settings": {
+        "title": "Settings",
+        "data": {
+          "pin_delay": "PIN delay (seconds)",
+          "double_stagger": "Double-insert stagger (seconds)",
+          "screen_quality": "Screen mirror quality",
+          "screen_divide": "Screen mirror downscale"
+        },
+        "data_description": {
+          "pin_delay": "Warm-up wait after inserting a card before the PIN is entered.",
+          "double_stagger": "Delay between the two PIN entries when inserting two cards.",
+          "screen_quality": "JPEG quality of the mirrored screen (1-100).",
+          "screen_divide": "Downscale factor for the mirrored screen (1 = full resolution)."
+        }
+      }
+    },
+    "abort": {
+      "no_cards": "There are no cards to remove."
+    }
+  },
+  "services": {
+    "insert_card": {
+      "name": "Insert card",
+      "description": "Insert a card on a player side and enter its PIN.",
+      "fields": {
+        "card_number": { "name": "Card number", "description": "The 16-digit IC card number." },
+        "pin": { "name": "PIN", "description": "The PIN to enter after insertion." },
+        "side": { "name": "Side", "description": "Player side to insert on." },
+        "pin_delay": { "name": "PIN delay", "description": "Seconds to wait before entering the PIN." }
+      }
+    },
+    "insert_double": {
+      "name": "Insert two cards",
+      "description": "Insert cards on both player sides and enter both PINs.",
+      "fields": {
+        "card_number": { "name": "Card number (primary side)", "description": "Card for the primary side." },
+        "pin": { "name": "PIN (primary side)", "description": "PIN for the primary side." },
+        "card_number2": { "name": "Card number (other side)", "description": "Card for the other side." },
+        "pin2": { "name": "PIN (other side)", "description": "PIN for the other side." },
+        "side": { "name": "Primary side", "description": "The player side of the first card." },
+        "pin_delay": { "name": "PIN delay", "description": "Seconds to wait before entering PINs." },
+        "stagger": { "name": "Stagger", "description": "Seconds between the two PIN entries." }
+      }
+    },
+    "keypad_write": {
+      "name": "Write keypad",
+      "description": "Send keypad input (digits / button presses) to a player side.",
+      "fields": {
+        "side": { "name": "Side", "description": "Player side." },
+        "values": { "name": "Values", "description": "Characters to send, e.g. 1234." }
+      }
+    },
+    "screenshot": {
+      "name": "Screenshot",
+      "description": "Trigger a screenshot on the host.",
+      "fields": {
+        "side": { "name": "Side", "description": "Player side." }
+      }
+    },
+    "button_press": {
+      "name": "Press buttons",
+      "description": "Write raw button states to the host.",
+      "fields": {
+        "buttons": { "name": "Buttons", "description": "List of [name, value] pairs." }
+      }
+    },
+    "lights_write": {
+      "name": "Write lights",
+      "description": "Write raw light states to the host.",
+      "fields": {
+        "lights": { "name": "Lights", "description": "List of [name, value] pairs." }
+      }
+    },
+    "coin_insert": {
+      "name": "Insert coins",
+      "description": "Insert coins.",
+      "fields": {
+        "amount": { "name": "Amount", "description": "Number of coins to insert." }
+      }
+    },
+    "touch": {
+      "name": "Touch",
+      "description": "Write touch points to the screen.",
+      "fields": {
+        "points": { "name": "Points", "description": "List of [id, x, y] touch points." }
+      }
+    },
+    "touch_reset": {
+      "name": "Release touch",
+      "description": "Release (lift) the given touch IDs.",
+      "fields": {
+        "ids": { "name": "IDs", "description": "List of touch IDs to release." }
+      }
+    },
+    "control": {
+      "name": "Control",
+      "description": "Run a control action on the host.",
+      "fields": {
+        "action": { "name": "Action", "description": "restart, exit, shutdown or reboot." }
+      }
+    },
+    "iidx_ticker_set": {
+      "name": "Set IIDX ticker",
+      "description": "Set the IIDX ticker text.",
+      "fields": {
+        "text": { "name": "Text", "description": "Ticker text to display." }
+      }
+    }
+  },
+  "entity": {
+    "select": {
+      "card_side": { "name": "Card side" }
+    },
+    "button": {
+      "screenshot": { "name": "Screenshot" }
+    }
+  }
+}

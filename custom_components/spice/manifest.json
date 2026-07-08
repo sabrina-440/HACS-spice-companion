@@ -1,0 +1,13 @@
+{
+  "domain": "spice",
+  "name": "spice2x Arcade",
+  "codeowners": ["@sabrina-440"],
+  "config_flow": true,
+  "dependencies": ["http", "websocket_api", "frontend"],
+  "documentation": "https://github.com/sabrina-440/spice-cardin-remotely",
+  "integration_type": "device",
+  "iot_class": "local_polling",
+  "issue_tracker": "https://github.com/sabrina-440/spice-cardin-remotely/issues",
+  "requirements": [],
+  "version": "1.0.0"
+}

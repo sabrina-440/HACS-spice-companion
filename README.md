@@ -62,6 +62,8 @@ restart Home Assistant.
 
 ## Live screen + touch (Lovelace card)
 
+If you add the screen feed as a camera to your dash board touch will **NOT WORK**, you need to add the custom card.
+
 The integration bundles a custom card that shows the live screen and forwards taps/clicks as touch
 input. Add it to a dashboard:
 
@@ -77,6 +79,7 @@ title: My Cabinet
 The card is auto-registered as a frontend resource — no manual resource setup needed. To find the
 `entry_id`, open the device page in Settings → Devices & Services and copy the id from the URL, or
 use `device_id` instead (from the same page).
+If it does not show up you can add it as a resource in Settings → Dashboards → ⋮ (top right) → Resources → + Add Resource or try full hard restart of your HA instance.
 
 ## Services
 

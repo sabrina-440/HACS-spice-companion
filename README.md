@@ -25,7 +25,7 @@ dashboard, phone, watch, or voice.
   For IIDX TDJ mode, also launch spice2x with `-iidxpoke`.
 - The machine reachable from Home Assistant (same LAN, or via VPN — exposing it publicly is not
   recommended).
-- The host **IP/hostname**, **API port** (default `57300`), and **API password** (default is often
+- The host **IP/hostname**, **API port** (default `57300`), and **API password** (default is
   `changeme`). These match your spice companion app settings.
 
 ## Installation

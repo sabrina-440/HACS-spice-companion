@@ -7,12 +7,15 @@
  *
  * Configuration:
  *   type: custom:spice-screen-card
- *   entry_id: <config entry id>      # or device_id: <device id>
+ *   entry_id: <config entry id>      # optional, or device_id: <device id>
  *   fps: 10                          # optional, frames per second (default 10)
  *   quality: 40                      # optional JPEG quality override
  *   divide: 2                        # optional downscale override
  *   screen: 0                        # optional screen index
  *   title: My Cabinet                # optional
+ *
+ * entry_id/device_id can be omitted if exactly one spice2x machine is
+ * configured in Home Assistant - the card will find it automatically.
  */
 
 class SpiceScreenCard extends HTMLElement {
@@ -31,11 +34,9 @@ class SpiceScreenCard extends HTMLElement {
   }
 
   setConfig(config) {
-    if (!config.entry_id && !config.device_id) {
-      throw new Error("Set 'entry_id' (or 'device_id') for the spice machine.");
-    }
-    this._config = config;
+    this._config = config || {};
     this._divide = config.divide != null ? Number(config.divide) : 1;
+    this._built = false;
   }
 
   set hass(hass) {
@@ -43,7 +44,7 @@ class SpiceScreenCard extends HTMLElement {
     if (!this._built) {
       this._build();
     }
-    if (!this._polling) {
+    if (!this._polling && !this._error) {
       this._polling = true;
       this._loop();
     }
@@ -53,12 +54,25 @@ class SpiceScreenCard extends HTMLElement {
     return 6;
   }
 
+  // devices registered by this integration, keyed by device id
+  _spiceDevices() {
+    if (!this._hass || !this._hass.devices) return [];
+    return Object.values(this._hass.devices).filter((d) =>
+      (d.identifiers || []).some(([domain]) => domain === "spice")
+    );
+  }
+
+  _autoDeviceId() {
+    const devices = this._spiceDevices();
+    return devices.length === 1 ? devices[0].id : null;
+  }
+
   _entryId() {
     if (this._config.entry_id) return this._config.entry_id;
-    // resolve from device registry entry in the frontend store
+    const deviceId = this._config.device_id || this._autoDeviceId();
     const device =
-      this._hass && this._hass.devices
-        ? this._hass.devices[this._config.device_id]
+      this._hass && this._hass.devices && deviceId
+        ? this._hass.devices[deviceId]
         : null;
     if (device && device.config_entries && device.config_entries.length) {
       return device.config_entries[0];
@@ -68,8 +82,23 @@ class SpiceScreenCard extends HTMLElement {
 
   _build() {
     this._built = true;
+    this._error = null;
     const card = document.createElement("ha-card");
     if (this._config.title) card.header = this._config.title;
+
+    if (!this._entryId()) {
+      const devices = this._spiceDevices();
+      this._error =
+        devices.length > 1
+          ? "Multiple spice2x machines found - set 'device_id' or 'entry_id' to pick one."
+          : "No spice2x machine found. Add the spice2x integration, or set 'device_id'/'entry_id'.";
+      const msg = document.createElement("div");
+      msg.style.cssText = "padding:16px;color:var(--error-color);";
+      msg.textContent = this._error;
+      card.appendChild(msg);
+      this.appendChild(card);
+      return;
+    }
 
     const holder = document.createElement("div");
     holder.style.cssText =
@@ -201,3 +230,4 @@ window.customCards.push({
   name: "spice2x Screen",
   description: "Live screen mirror with touch input for a spice2x machine.",
 });
+

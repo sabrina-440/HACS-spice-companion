@@ -20,7 +20,7 @@ async def async_setup_entry(
     async_add_entities: AddEntitiesCallback,
 ) -> None:
     """Set up the card-side selector."""
-    async_add_entities([SpiceCardSideSelect(entry, entry.runtime_data)])
+    async_add_entities([SpiceCardSideSelect(entry, entry.runtime_data.client)])
 
 
 class SpiceCardSideSelect(SpiceEntity, SelectEntity, RestoreEntity):

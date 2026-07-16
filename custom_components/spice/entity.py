@@ -5,9 +5,11 @@ from __future__ import annotations
 from homeassistant.config_entries import ConfigEntry
 from homeassistant.helpers.device_registry import DeviceInfo
 from homeassistant.helpers.entity import Entity
+from homeassistant.helpers.update_coordinator import CoordinatorEntity
 
 from .client import SpiceClient
 from .const import CONF_HOST, DOMAIN
+from .coordinator import SpiceConnectivityCoordinator
 
 
 class SpiceEntity(Entity):
@@ -26,3 +28,18 @@ class SpiceEntity(Entity):
             model="Arcade Machine",
             configuration_url=f"http://{entry.data[CONF_HOST]}",
         )
+
+
+class SpiceCoordinatorEntity(CoordinatorEntity[SpiceConnectivityCoordinator], SpiceEntity):
+    """Base class for entities backed by the connectivity coordinator."""
+
+    def __init__(
+        self,
+        entry: ConfigEntry,
+        client: SpiceClient,
+        coordinator: SpiceConnectivityCoordinator,
+    ) -> None:
+        """Initialise both the coordinator and device-info mixins."""
+        CoordinatorEntity.__init__(self, coordinator)
+        SpiceEntity.__init__(self, entry, client)
+

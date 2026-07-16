@@ -27,7 +27,7 @@ async def async_setup_entry(
     async_add_entities: AddEntitiesCallback,
 ) -> None:
     """Set up the insert buttons (one per configured card) and screenshot."""
-    client = entry.runtime_data
+    client = entry.runtime_data.client
     entities: list[ButtonEntity] = [SpiceScreenshotButton(entry, client)]
     for card in entry.options.get(CONF_CARDS, []):
         entities.append(SpiceCardButton(entry, client, card))

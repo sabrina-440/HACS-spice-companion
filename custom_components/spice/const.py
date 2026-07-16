@@ -29,6 +29,7 @@ DEFAULT_PIN_DELAY = 7  # seconds; device warm-up before PIN entry
 DEFAULT_DOUBLE_STAGGER = 1  # seconds between the two PIN writes
 DEFAULT_SCREEN_QUALITY = 40  # JPEG quality 0-100 for the screen mirror
 DEFAULT_SCREEN_DIVIDE = 2  # downscale factor for the screen mirror
+DEFAULT_SCAN_INTERVAL = 15 # seconds for polling connectivity
 
 # player sides
 SIDE_P1 = 0

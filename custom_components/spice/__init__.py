@@ -3,6 +3,7 @@
 from __future__ import annotations
 
 import logging
+from dataclasses import dataclass
 
 from homeassistant.config_entries import ConfigEntry
 from homeassistant.const import Platform
@@ -10,14 +11,29 @@ from homeassistant.core import HomeAssistant
 
 from .client import SpiceClient
 from .const import CONF_HOST, CONF_PASSWORD, CONF_PORT, DOMAIN
+from .coordinator import SpiceConnectivityCoordinator
 from .http import async_register_frontend, async_unregister_frontend
 from .services import async_setup_services, async_unload_services
 
 _LOGGER = logging.getLogger(__name__)
 
-PLATFORMS: list[Platform] = [Platform.BUTTON, Platform.CAMERA, Platform.SELECT]
+PLATFORMS: list[Platform] = [
+    Platform.BINARY_SENSOR,
+    Platform.BUTTON,
+    Platform.CAMERA,
+    Platform.SELECT,
+]
 
-type SpiceConfigEntry = ConfigEntry[SpiceClient]
+
+@dataclass
+class SpiceRuntimeData:
+    """Data shared between platforms for one config entry."""
+
+    client: SpiceClient
+    coordinator: SpiceConnectivityCoordinator
+
+
+type SpiceConfigEntry = ConfigEntry[SpiceRuntimeData]
 
 
 async def async_setup_entry(hass: HomeAssistant, entry: SpiceConfigEntry) -> bool:
@@ -28,7 +44,9 @@ async def async_setup_entry(hass: HomeAssistant, entry: SpiceConfigEntry) -> boo
         entry.data[CONF_PORT],
         entry.data.get(CONF_PASSWORD, ""),
     )
-    entry.runtime_data = client
+    coordinator = SpiceConnectivityCoordinator(hass, client, entry.title)
+    await coordinator.async_config_entry_first_refresh()
+    entry.runtime_data = SpiceRuntimeData(client=client, coordinator=coordinator)
 
     # per-entry client registry for service / websocket / http lookup by entry_id
     hass.data.setdefault(DOMAIN, {})[entry.entry_id] = client
@@ -49,7 +67,7 @@ async def async_unload_entry(hass: HomeAssistant, entry: SpiceConfigEntry) -> bo
     """Unload a config entry."""
     unloaded = await hass.config_entries.async_unload_platforms(entry, PLATFORMS)
     if unloaded:
-        await entry.runtime_data.async_close()
+        await entry.runtime_data.client.async_close()
         hass.data[DOMAIN].pop(entry.entry_id, None)
         if not hass.data[DOMAIN]:
             async_unload_services(hass)
@@ -60,3 +78,4 @@ async def async_unload_entry(hass: HomeAssistant, entry: SpiceConfigEntry) -> bo
 async def _async_reload_entry(hass: HomeAssistant, entry: SpiceConfigEntry) -> None:
     """Reload the config entry when its options change."""
     await hass.config_entries.async_reload(entry.entry_id)
+

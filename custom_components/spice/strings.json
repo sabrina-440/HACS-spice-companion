@@ -181,6 +181,9 @@
     },
     "button": {
       "screenshot": { "name": "Screenshot" }
+    },
+    "binary_sensor": {
+      "connectivity": { "name": "Connectivity" }
     }
   }
 }

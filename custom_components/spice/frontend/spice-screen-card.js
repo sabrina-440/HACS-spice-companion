@@ -18,6 +18,28 @@
  * configured in Home Assistant - the card will find it automatically.
  */
 
+const HOLDER_STYLE =
+  "position:relative;width:100%;line-height:0;background:#000;touch-action:none;";
+const HOLDER_FULLSCREEN_STYLE =
+  "position:fixed;inset:0;width:100vw;height:100vh;z-index:9999;" +
+  "background:#000;touch-action:none;display:flex;align-items:center;" +
+  "justify-content:center;line-height:0;";
+const IMG_STYLE = "width:100%;height:auto;display:block;user-select:none;";
+const IMG_FULLSCREEN_STYLE =
+  "max-width:100%;max-height:100%;width:auto;height:auto;" +
+  "object-fit:contain;display:block;user-select:none;";
+const FS_BUTTON_STYLE =
+  "position:absolute;top:8px;right:8px;z-index:2;width:40px;height:40px;" +
+  "border:none;border-radius:50%;background:rgba(0,0,0,0.5);color:#fff;" +
+  "display:flex;align-items:center;justify-content:center;padding:0;" +
+  "cursor:pointer;touch-action:manipulation;";
+const ENTER_FULLSCREEN_ICON =
+  '<svg viewBox="0 0 24 24" width="22" height="22" fill="currentColor">' +
+  '<path d="M7,14H5v5h5v-2H7V14z M5,10h2V7h3V5H5V10z M17,17h-3v2h5v-5h-2V17z M14,5v2h3v3h2V5H14z"/></svg>';
+const EXIT_FULLSCREEN_ICON =
+  '<svg viewBox="0 0 24 24" width="22" height="22" fill="currentColor">' +
+  '<path d="M5,16h3v3h2v-5H5V16z M8,8H5v2h5V5H8V8z M14,19h2v-3h3v-2h-5V19z M16,8V5h-2v5h5V8H16z"/></svg>';
+
 class SpiceScreenCard extends HTMLElement {
   constructor() {
     super();
@@ -31,6 +53,14 @@ class SpiceScreenCard extends HTMLElement {
     this._nextId = 100000 + Math.floor(Math.random() * 90000);
     this._objectUrl = null;
     this._built = false;
+    this._fullscreen = false;
+    this._onKeyDown = (e) => {
+      if (e.key === "Escape" && this._fullscreen) this._setFullscreen(false);
+    };
+  }
+
+  disconnectedCallback() {
+    if (this._fullscreen) this._setFullscreen(false);
   }
 
   setConfig(config) {
@@ -101,15 +131,27 @@ class SpiceScreenCard extends HTMLElement {
     }
 
     const holder = document.createElement("div");
-    holder.style.cssText =
-      "position:relative;width:100%;line-height:0;background:#000;touch-action:none;";
+    holder.style.cssText = HOLDER_STYLE;
+    this._holder = holder;
 
     const img = document.createElement("img");
-    img.style.cssText = "width:100%;height:auto;display:block;user-select:none;";
+    img.style.cssText = IMG_STYLE;
     img.draggable = false;
     this._img = img;
 
+    const fsBtn = document.createElement("button");
+    fsBtn.type = "button";
+    fsBtn.setAttribute("aria-label", "Toggle fullscreen");
+    fsBtn.style.cssText = FS_BUTTON_STYLE;
+    fsBtn.innerHTML = ENTER_FULLSCREEN_ICON;
+    fsBtn.addEventListener("click", (e) => {
+      e.stopPropagation();
+      this._setFullscreen(!this._fullscreen);
+    });
+    this._fsBtn = fsBtn;
+
     holder.appendChild(img);
+    holder.appendChild(fsBtn);
     card.appendChild(holder);
     this.appendChild(card);
 
@@ -118,6 +160,35 @@ class SpiceScreenCard extends HTMLElement {
     holder.addEventListener("pointerup", (e) => this._onUp(e));
     holder.addEventListener("pointercancel", (e) => this._onUp(e));
     holder.addEventListener("pointerleave", (e) => this._onUp(e));
+  }
+
+  // Fake fullscreen via CSS + reparenting instead of the Fullscreen API,
+  // since iOS Safari/WebView (incl. the HA companion app) only supports
+  // requestFullscreen() on <video>, not arbitrary elements.
+  _setFullscreen(on) {
+    if (on === this._fullscreen) return;
+    this._fullscreen = on;
+    const holder = this._holder;
+
+    if (on) {
+      this._origParent = holder.parentNode;
+      this._origNextSibling = holder.nextSibling;
+      document.body.appendChild(holder);
+      holder.style.cssText = HOLDER_FULLSCREEN_STYLE;
+      this._img.style.cssText = IMG_FULLSCREEN_STYLE;
+      this._fsBtn.innerHTML = EXIT_FULLSCREEN_ICON;
+      document.body.style.overflow = "hidden";
+      window.addEventListener("keydown", this._onKeyDown);
+    } else {
+      if (this._origParent) {
+        this._origParent.insertBefore(holder, this._origNextSibling || null);
+      }
+      holder.style.cssText = HOLDER_STYLE;
+      this._img.style.cssText = IMG_STYLE;
+      this._fsBtn.innerHTML = ENTER_FULLSCREEN_ICON;
+      document.body.style.overflow = "";
+      window.removeEventListener("keydown", this._onKeyDown);
+    }
   }
 
   async _loop() {

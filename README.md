@@ -33,7 +33,7 @@ dashboard, phone, watch, or voice.
 ### HACS (recommended)
 
 1. In HACS → **Integrations** → ⋮ → **Custom repositories**, add
-   `https://github.com/sabrina-440/whatever` as an **Integration**.
+   `https://github.com/sabrina-440/HACS-spice-companion` as an **Integration**.
 2. Install **spice2x Arcade** and **restart Home Assistant**.
 3. Add it via **Settings → Devices & Services → Add Integration → spice2x Arcade**.
 

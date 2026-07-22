@@ -28,7 +28,7 @@ async def async_setup_entry(
     async_add_entities: AddEntitiesCallback,
 ) -> None:
     """Set up one camera per available screen."""
-    client = entry.runtime_data
+    client = entry.runtime_data.client
     try:
         screens = await client.async_capture_screens()
     except SpiceConnectionError as err:
